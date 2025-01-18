@@ -102,7 +102,7 @@ func LoadData() error {
             continue
         }
 // [ADICIONADO] Exibe todo o documento recuperado para debug
-log.Printf("brandDoc recuperado do BD para marca %s (%d): %v", marca.Label, codMarca, brandDoc)
+//log.Printf("brandDoc recuperado do BD para marca %s (%d): %v", marca.Label, codMarca, brandDoc)
 
 // 3.3. Se a marca existe, checar se já temos o mesmo total de modelos gravados
 modelsBsonA, ok := brandDoc["models"].(bson.A)
@@ -118,16 +118,17 @@ if !ok {
 }
 
 // [ADICIONADO] Exibe o conteúdo de modelsBD
-log.Printf("Marca %s => modelsBD (já no banco): %v", marca.Label, modelsBD)
+log.Printf("Marca %s => modelsBD (já no banco)", marca.Label)
 
 // 3.4. Se o total de modelos na API == total de modelos no BD => pula
-if len(modelsBD) == totalModelosAPI {
+if len(modelsBD) >= totalModelosAPI {
     log.Printf("Marca %s (%d) já possui todos os modelos (%d). Pulando.", marca.Label, codMarca, totalModelosAPI)
     continue
 }
 
 
         // 3.5. Se faltam modelos, processa só o que falta (comparando um a um)
+
         log.Printf("Marca %s (%d) incompleta: BD tem %d de %d modelos. Processando os faltantes...", 
             marca.Label, codMarca, len(modelsBD), totalModelosAPI)
 
@@ -184,21 +185,36 @@ func processarModelosFaltantes(
 
     // 1) Monta um map com os modelCode existentes (se houverem)
     existing := make(map[int]bool)
+
     for _, m := range modelsBD {
-        doc, ok := m.(bson.M)
+        // Log do elemento bruto
+        // Verifique se é do tipo bson.M
+        doc, ok := m.(bson.M)        
         if !ok {
+            log.Printf("Skipping non-bson.M element: %v", m)
             continue
         }
-        code, _ := doc["modelCode"].(int)
-        existing[code] = true
+        // Tente acessar modelCode como int
+        rawCode := doc["modelCode"]
+        switch v := rawCode.(type) {
+        case int32:
+            existing[int(v)] = true
+            log.Printf("Adicionado modelCode (int32 convertido para int): %d", int(v))
+        default:
+            log.Printf("Tipo inesperado para modelCode: %T, Valor: %v", rawCode, rawCode)
+        }
     }
 
     // 2) Percorre os modelos da API
     for _, modelo := range modStruct.Modelos {
         // Se já existe no BD, pula
+        log.Printf("Mapa Existing: %v", existing)
+        log.Printf("Modelo Value: %d", modelo.Value)
+
         if existing[modelo.Value] {
             continue 
         }
+        log.Printf("Inserindo modelo %s", modelo.Label)
 
         // (A) CONSULTAR anos do modelo
         anosPayload := map[string]interface{}{
@@ -224,6 +240,7 @@ func processarModelosFaltantes(
         // (B) Para cada ano, consultar valor
         var anosArr []bson.M
         for _, ano := range anos {
+
             if len(ano.Value) < 3 {
                 continue
             }
@@ -302,7 +319,7 @@ func makePostRequest(url string, payload map[string]interface{}) ([]byte, error)
             defer resp.Body.Close()
             body, _ := io.ReadAll(resp.Body)
             if resp.StatusCode == http.StatusOK {
-                log.Printf("Tentativa %d: status %d => FUNCIONOU", attempt, resp.StatusCode)
+                log.Printf("Tentativa %d: status %d => Ok", attempt, resp.StatusCode)
                 time.Sleep(backoffBase)
                 return body, nil
             }
