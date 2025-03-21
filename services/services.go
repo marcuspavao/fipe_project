@@ -300,7 +300,7 @@ func processarModelosFaltantes(
 
 // makePostRequest com retry básico
 func makePostRequest(url string, payload map[string]interface{}) ([]byte, error) {
-	maxRetries := 5
+	maxRetries := 100
 	backoffBase := 1 * time.Second
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		data, err := json.Marshal(payload)
@@ -344,12 +344,12 @@ func fetchLatestTabelaReferencia(ctx context.Context, col *database.CollectionWr
 	}
 	_, err = col.UpdateOne(
 		ctx,
-		bson.M{"codigo": tabelas[0].Codigo},
+		bson.M{"codigo": tabelas[12].Codigo},
 		bson.M{"$set": bson.M{
-			"codigo": tabelas[0].Codigo,
-			"mes":    tabelas[0].Mes,
+			"codigo": tabelas[12].Codigo,
+			"mes":    tabelas[12].Mes,
 		}},
 		options.Update().SetUpsert(true),
 	)
-	return tabelas[0].Codigo, err
+	return tabelas[12].Codigo, err
 }
