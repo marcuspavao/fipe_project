@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparar Valores - FIPE</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-car"></i> Comparar Valores na Tabela FIPE</h1>
+          </header>
+
+        <div class="comparison-container">
+            <div class="form-group">
+                <label for="tabelaSelect"><i class="fas fa-calendar-alt"></i> Primeiro Período:</label>
+                <select id="tabelaSelect" class="form-control">
+                    <option value="">Selecione o primeiro período para comparação</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tabelaSelect2"><i class="fas fa-calendar-alt"></i> Segundo Período:</label>
+                <select id="tabelaSelect2" class="form-control">
+                    <option value="">Selecione o segundo período para comparação</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label for="marcaSelect"><i class="fas fa-trademark"></i> Marca:</label>
+                <select id="marcaSelect" class="form-control">
+                    <option value="">Selecione uma marca</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="modeloSelect"><i class="fas fa-car-side"></i> Modelo:</label>
+                <select id="modeloSelect" class="form-control" disabled>
+                    <option value="">Selecione um modelo</option>
+                </select>
+            </div>
+
+            <button id="compareButton" class="compareButton">Comparar Valores</button>
+        </div>
+
+        <div class="result-container" id="resultadoComparacao">
+            <!-- Resultados da comparação serão exibidos aqui -->
+        </div>
+
+        <footer>
+            <p>Dados fornecidos pela Tabela FIPE &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script src="comparar.js"></script>
+</body>
+
+</html>

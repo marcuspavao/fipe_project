@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"fipe_project/database"
-	"fipe_project/services"
+	//"fipe_project/services"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,14 +24,14 @@ func main() {
 	}
 
 	// Inicia o carregamento dos dados FIPE em segundo plano
-	go func() {
+/* 	go func() {
 		log.Println("Iniciando carregamento de dados FIPE em segundo plano...")
 		if err := services.LoadData(); err != nil {
 			log.Printf("Erro ao carregar dados FIPE: %v", err)
 		} else {
 			log.Println("Dados FIPE carregados com sucesso!")
 		}
-	}()
+	}() */
 
 	// Configuração das rotas
 	router := mux.NewRouter()

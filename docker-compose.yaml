@@ -1,7 +1,12 @@
 
+networks:
+  shared_network:
+    name: shared_network
+
 services:
   mongo:
     image: mongo:4.0
+    command: mongod --bind_ip_all
     container_name: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -10,6 +15,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - shared_network
 # Mapeamento local => contêiner
   
   
@@ -24,7 +31,8 @@ services:
     environment:
       MONGO_URI: "mongodb://root:123456@mongo:27017"
       MONGO_DATABASE: "fipe_db"
-
+    networks:
+      - shared_network
   # Interface Web para MongoDB
   mongo-express:
     image: mongo-express:latest
@@ -35,6 +43,8 @@ services:
       ME_CONFIG_BASICAUTH: false
     ports:
       - "8081:8081"
+    networks:
+      - shared_network
 
 volumes:
   mongo_data:
