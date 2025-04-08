@@ -17,10 +17,7 @@ services:
       - mongo_data:/data/db
     networks:
       - shared_network
-# Mapeamento local => contêiner
   
-  
-  # Serviço principal Go
   app:
     build: .
     container_name: go_app
@@ -33,7 +30,7 @@ services:
       MONGO_DATABASE: "fipe_db"
     networks:
       - shared_network
-  # Interface Web para MongoDB
+
   mongo-express:
     image: mongo-express:latest
     environment:

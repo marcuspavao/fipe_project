@@ -1,12 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const tabelaSelect1 = document.getElementById('tabelaSelect'); // Primeiro período
-    const tabelaSelect2 = document.getElementById('tabelaSelect2'); // Segundo período
+    const tabelaSelect1 = document.getElementById('tabelaSelect');  
+    const tabelaSelect2 = document.getElementById('tabelaSelect2');  
     const marcaSelect = document.getElementById('marcaSelect');
     const modeloSelect = document.getElementById('modeloSelect');
     const compareButton = document.getElementById('compareButton');
     const resultadoComparacao = document.getElementById('resultadoComparacao');
 
-    // Carregar as tabelas de referência (períodos disponíveis)
     fetch('/api/tabelas')
         .then(response => response.json())
         .then(tabelas => {
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => console.error('Erro ao carregar tabelas:', err));
 
-    // Ao selecionar uma tabela, carrega as marcas disponíveis
     tabelaSelect1.addEventListener('change', () => {
         carregarMarcas();
     });
@@ -64,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Ao selecionar uma marca, carrega os modelos disponíveis
     marcaSelect.addEventListener('change', () => {
         const marcaVal = marcaSelect.value;
         const tabelaVal1 = tabelaSelect1.value;
@@ -92,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Comparar os valores entre os dois períodos
     compareButton.addEventListener('click', () => {
         const modeloVal = modeloSelect.value;
         const tabelaVal1 = tabelaSelect1.value;

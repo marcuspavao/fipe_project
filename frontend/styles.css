@@ -12,61 +12,58 @@
 }
 
 #compareButton {
-  background-color: #3498db; /* Azul primário */
-  color: white; /* Cor do texto */
-  border: none; /* Sem borda */
-  padding: 12px 24px; /* Espaçamento interno */
-  font-size: 16px; /* Tamanho da fonte */
-  font-weight: bold; /* Texto em negrito */
-  text-transform: uppercase; /* Texto em maiúsculas */
-  border-radius: 8px; /* Bordas arredondadas */
-  cursor: pointer; /* Cursor de mão ao passar o mouse */
+  background-color: #3498db; 
+  color: white; 
+  border: none; 
+  padding: 12px 24px; 
+  font-size: 16px; 
+  font-weight: bold; 
+  text-transform: uppercase; 
+  border-radius: 8px; 
+  cursor: pointer; 
   margin-bottom: 25px;
-  transition: all 0.3s ease; /* Transição suave para hover */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  transition: all 0.3s ease; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
 }
 
 #compareButton:hover {
-  background-color: #27ae60; /* Verde mais escuro no hover */
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); /* Aumenta a sombra no hover */
+  background-color: #27ae60; 
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); 
 }
 
-/* Estilo base do nav */
+
 nav {
-  background-color: #2c3e50; /* Fundo escuro */
-  padding: 15px 20px; /* Espaçamento interno */
-  text-align: center; /* Centralizar os links */
-  border-radius: 8px; /* Bordas arredondadas */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  background-color: #2c3e50; 
+  padding: 15px 20px; 
+  text-align: center; 
+  border-radius: 8px; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
 }
 
-/* Estilo dos links dentro do nav */
+
 nav a {
-  color: #ecf0f1; /* Cor do texto (branco claro) */
-  text-decoration: none; /* Remove o sublinhado dos links */
-  font-size: 18px; /* Tamanho da fonte */
-  font-weight: bold; /* Texto em negrito */
-  margin: 0 10px; /* Espaçamento horizontal entre os links */
-  transition: color 0.3s ease, transform 0.3s ease; /* Transição suave para hover */
+  color: #ecf0f1; 
+  text-decoration: none; 
+  font-size: 18px; 
+  font-weight: bold; 
+  margin: 0 10px; 
+  transition: color 0.3s ease, transform 0.3s ease; 
 }
 
-/* Efeito de hover nos links */
 nav a:hover {
-  color: #1abc9c; /* Verde claro no hover */
-  transform: scale(1.1); /* Aumenta ligeiramente o tamanho no hover */
+  color: #1abc9c; 
+  transform: scale(1.1); 
 }
 
-/* Efeito de foco nos links (acessibilidade) */
 nav a:focus {
-  outline: none; /* Remove o contorno padrão do navegador */
-  color: #3498db; /* Azul claro no foco */
+  outline: none; 
+  color: #3498db; 
 }
 
-/* Separador entre os links (o "|") */
 nav a + a::before {
-  content: "|"; /* Adiciona o separador antes de cada link (exceto o primeiro) */
+  content: "|"; 
   margin-right: 10px;
-  color: #bdc3c7; /* Cinza claro para o separador */
+  color: #bdc3c7; 
 }
 
 
@@ -89,28 +86,25 @@ body {
   padding: 20px;
 }
 
-/* Estilo base do header */
 header {
-  background-color: #2c3e50; /* Fundo escuro */
-  padding: 15px 20px; /* Espaçamento interno */
-  text-align: center; /* Centralizar o conteúdo */
-  border-radius: 8px; /* Bordas arredondadas */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
-  margin-bottom: 30px; /* Espaço abaixo do header */
+  background-color: #2c3e50;
+  padding: 15px 20px;
+  text-align: center;  
+  border-radius: 8px; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+  margin-bottom: 30px;  
 }
 
-/* Estilo do título principal no header */
-header h1 {
-  color: #ecf0f1; /* Cor do texto (branco claro) */
-  font-size: 24px; /* Tamanho da fonte */
-  font-weight: bold; /* Texto em negrito */
-  margin-bottom: 10px; /* Espaçamento abaixo do título */
+ header h1 {
+  color: #ecf0f1;  
+  font-size: 24px;  
+  font-weight: bold;  
+  margin-bottom: 10px;  
 }
 
-/* Estilo do subtítulo no header */
 header .subtitle {
-  color: #bdc3c7; /* Cinza claro para o subtítulo */
-  font-size: 16px; /* Tamanho da fonte do subtítulo */
+  color: #bdc3c7;  
+  font-size: 16px; 
 }
 
 
@@ -218,7 +212,7 @@ footer {
   border-top: 1px solid var(--medium-gray);
 }
 
-/* Responsividade */
+
 @media (max-width: 768px) {
   .container {
     padding: 15px;
@@ -229,7 +223,6 @@ footer {
   }
 }
 
-/* Animações */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

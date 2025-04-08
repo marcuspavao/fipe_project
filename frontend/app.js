@@ -4,30 +4,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeloSelect = document.getElementById('modeloSelect');
     const resultado = document.getElementById('resultado');
   
-    // Carrega as tabelas de referência (período: ano e mês)
     fetch('/api/tabelas')
       .then(response => response.json())
       .then(tabelas => {
         tabelas.forEach(tabela => {
           const option = document.createElement('option');
-          option.value = tabela.codigo; // Campo "codigo" da TabelaReferencia
+          option.value = tabela.codigo; 
           option.textContent = `Tabela ${tabela.codigo} - ${tabela.mes}`;
           tabelaSelect.appendChild(option);
         });
       })
       .catch(err => console.error('Erro ao carregar tabelas:', err));
   
-    // Ao selecionar uma tabela, carrega as marcas correspondente
     tabelaSelect.addEventListener('change', () => {
       const tabelaVal = tabelaSelect.value;
       if (tabelaVal) {
         marcaSelect.disabled = false;
-        // Limpa as opções anteriores
         marcaSelect.innerHTML = '<option value="">Selecione uma marca</option>';
         modeloSelect.innerHTML = '<option value="">Selecione um modelo</option>';
         modeloSelect.disabled = true;
         resultado.innerHTML = '';
-        // Carrega as marcas filtrando pelo parâmetro "tabela"
         fetch(`/api/marcas?tabela=${tabelaVal}`)
           .then(response => response.json())
           .then(marcas => {
@@ -48,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   
-    // Ao selecionar uma marca, carrega os modelos para essa marca e período
     marcaSelect.addEventListener('change', () => {
       const marcaVal = marcaSelect.value;
       const tabelaVal = tabelaSelect.value;
@@ -61,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(modelos => {
             modelos.forEach(modelo => {
               const option = document.createElement('option');
-              // Aqui assumimos que os dados do modelo retornam "modelCode" e "modelName"
               option.value = modelo.modelCode;
               option.textContent = modelo.modelName;
               modeloSelect.appendChild(option);
@@ -75,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   
-    // Ao selecionar um modelo, busca e exibe os veículos filtrados por modelo e tabela
     modeloSelect.addEventListener('change', () => {
       const modeloVal = modeloSelect.value;
       const tabelaVal = tabelaSelect.value;
@@ -113,5 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resultado.innerHTML = '';
       }
     });
+
   });
   

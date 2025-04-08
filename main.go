@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"fipe_project/database"
-	//"fipe_project/services"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,41 +17,24 @@ import (
 )
 
 func main() {
-	// Conecta ao MongoDB
+
 	if err := database.ConnectMongoDB(); err != nil {
 		log.Fatalf("Erro ao conectar no MongoDB: %v", err)
 	}
 
-	// Inicia o carregamento dos dados FIPE em segundo plano
-/* 	go func() {
-		log.Println("Iniciando carregamento de dados FIPE em segundo plano...")
-		if err := services.LoadData(); err != nil {
-			log.Printf("Erro ao carregar dados FIPE: %v", err)
-		} else {
-			log.Println("Dados FIPE carregados com sucesso!")
-		}
-	}() */
-
-	// Configuração das rotas
 	router := mux.NewRouter()
 
-	// Endpoint para retornar as tabelas de referência (ano/mês)
 	router.HandleFunc("/api/tabelas", getTabelasReferencia).Methods("GET")
-	// Endpoint para retornar marcas, filtrando pelo parâmetro "tabela"
 	router.HandleFunc("/api/marcas", getMarcas).Methods("GET")
-	// Endpoint para retornar os modelos de uma marca (usando o código da marca na URL e "tabela" como query)
 	router.HandleFunc("/api/modelos/{marca}", getModelos).Methods("GET")
-	// Endpoint para retornar veículos, filtrando pelo modelo e período (tabela)
 	router.HandleFunc("/api/veiculos", getVeiculos).Methods("GET")
-
-	// Serviço de arquivos estáticos para o frontend
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./frontend")))
 
 	log.Println("Servidor rodando na porta 8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-// Retorna as tabelas de referência disponíveis (com informações de ano e mês)
+
 func getTabelasReferencia(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -74,9 +56,7 @@ func getTabelasReferencia(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tabelas)
 }
 
-// Retorna somente as marcas presentes na coleção Veiculos para um período específico (tabela)
 func getMarcas(w http.ResponseWriter, r *http.Request) {
-	// Espera que o parâmetro de query "tabela" seja enviado (ex: ?tabela=1234)
 	tabelaParam := r.URL.Query().Get("tabela")
 	if tabelaParam == "" {
 		http.Error(w, "Parâmetro 'tabela' é obrigatório", http.StatusBadRequest)
@@ -110,7 +90,6 @@ func getMarcas(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(marcas)
 }
 
-// Retorna os modelos para uma marca específica (usando brandCode) e filtrando pelo período ("tabela")
 func getModelos(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	marcaParam := vars["marca"]
@@ -150,9 +129,8 @@ func getModelos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models)
 }
 
-// Retorna os veículos para um determinado modelo e período (tabela)
 func getVeiculos(w http.ResponseWriter, r *http.Request) {
-	// Recupera os parâmetros da requisição
+
 	modeloParam := r.URL.Query().Get("modelo")
 	if modeloParam == "" {
 		http.Error(w, "Parâmetro 'modelo' é obrigatório", http.StatusBadRequest)
@@ -183,7 +161,7 @@ func getVeiculos(w http.ResponseWriter, r *http.Request) {
 
 	collection := database.DB.Collection("Veiculos")
 
-	// Filtro para buscar o documento da marca pelo código da tabela de referência
+
 	filter := bson.M{
 		"monthYearId":      tabelaId,
 		"models.modelCode": modeloId,
@@ -199,7 +177,6 @@ func getVeiculos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extrai os modelos
 	modelsRaw, exists := result["models"]
 	if !exists {
 		log.Printf("Campo 'models' não encontrado no documento")
@@ -207,7 +184,6 @@ func getVeiculos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verifica se é um array
 	models, ok := modelsRaw.(primitive.A)
 	if !ok {
 		log.Printf("Campo 'models' não é um array, tipo: %T", modelsRaw)
