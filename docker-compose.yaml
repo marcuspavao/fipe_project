@@ -1,0 +1,51 @@
+
+networks:
+  shared_network:
+    name: shared_network
+
+services:
+  mongo:
+    image: mongo:4.0
+    command: mongod --bind_ip_all
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - shared_network
+# Mapeamento local => contêiner
+  
+  
+  # Serviço principal Go
+  app:
+    build: .
+    container_name: go_app
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    environment:
+      MONGO_URI: "mongodb://root:123456@mongo:27017"
+      MONGO_DATABASE: "fipe_db"
+    networks:
+      - shared_network
+  # Interface Web para MongoDB
+  mongo-express:
+    image: mongo-express:latest
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 123456
+      ME_CONFIG_MONGODB_URL: "mongodb://root:123456@mongo:27017/"
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    networks:
+      - shared_network
+
+volumes:
+  mongo_data:
+    driver: local 

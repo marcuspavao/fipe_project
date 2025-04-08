@@ -1,0 +1,9 @@
+[build]
+  cmd = "go build -o ./tmp/main ./main.go"
+  bin = "./tmp/main"
+  include_ext = ["go"]
+  exclude_dir = ["vendor","tmp","node_modules"]
+[log]
+  level = "debug"
+[console]
+  colorful = true
