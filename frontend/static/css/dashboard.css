@@ -1,0 +1,217 @@
+:root {
+    --primary-color: #0056b3;
+    --secondary-color: #f8f9fa;
+    --text-color: #333;
+    --border-color: #dee2e6;
+    --positive-color: #28a745;
+    --negative-color: #dc3545;
+    --neutral-color: #6c757d;
+    --card-bg: #ffffff;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    align-items: flex-end; /* Alinha itens na base */
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Permite que os grupos cresçam */
+    min-width: 180px; /* Largura mínima */
+}
+
+.control-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.control-group select {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1em;
+    background-color: #fff;
+    width: 100%; /* Ocupa todo o espaço do grupo */
+}
+
+.control-group select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    height: 40px; /* Altura alinhada com selects */
+}
+
+button:disabled {
+    background-color: #a0c3e8;
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+    background-color: #004494;
+}
+
+.status {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.status.error {
+    color: var(--negative-color);
+}
+
+.status.loading {
+    color: var(--primary-color);
+}
+
+.results-grid {
+    display: grid;
+    /* Ajusta o número de colunas com base na largura */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.brand-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espaço entre seções dentro do card */
+}
+
+.brand-card h2 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color);
+    text-align: center;
+    font-size: 1.4em;
+    color: var(--primary-color);
+}
+
+.period-stats {
+    border: 1px dashed var(--border-color);
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.period-stats h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.period-stats p, .diff-stats p {
+    margin: 5px 0;
+    font-size: 0.95em;
+    display: flex; /* Para alinhar label e valor */
+    justify-content: space-between; /* Separa label e valor */
+}
+
+.period-stats p strong, .diff-stats p strong {
+    color: #444; /* Cor mais escura para labels */
+    margin-right: 8px; /* Espaço entre label e valor */
+    flex-shrink: 0; /* Evita que o label encolha */
+}
+
+.period-stats .price-detail, .diff-stats .diff-detail {
+    font-weight: bold; /* Destaca o valor */
+}
+
+/* Estilos para a seção de diferenças */
+.diff-stats {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.diff-stats h3 {
+     margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: #555;
+    text-align: center;
+}
+
+/* Classes para cores de variação */
+.positive {
+    color: var(--positive-color);
+}
+
+.negative {
+    color: var(--negative-color);
+}
+
+.neutral {
+    color: var(--neutral-color);
+}
+
+/* Para indicar modelos de menor/maior preço */
+.modelo-destaque {
+    font-style: italic;
+    font-size: 0.85em;
+    color: #555;
+    margin-left: 5px; /* Pequeno recuo */
+    display: block; /* Quebra linha */
+    margin-top: -2px; /* Ajuste fino */
+}
+
+/* Responsividade simples */
+@media (max-width: 600px) {
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .control-group {
+        min-width: unset;
+    }
+    button {
+        width: 100%;
+    }
+    .results-grid {
+         grid-template-columns: 1fr; /* Uma coluna em telas pequenas */
+    }
+}

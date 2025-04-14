@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Marcas FIPE</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Comparativo de Marcas (0km)</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="tabelaSelect1">Período 1:</label>
+                <select id="tabelaSelect1">
+                    <option value="">Carregando...</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="tabelaSelect2">Período 2:</label>
+                <select id="tabelaSelect2">
+                    <option value="">Carregando...</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="marcaSelect">Marca:</label>
+                <select id="marcaSelect" disabled>
+                    <option value="all">Todas as Marcas</option>
+                    <!-- Marcas serão carregadas via JS -->
+                </select>
+            </div>
+            <button id="fetchDashboardButton" disabled>Comparar</button>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+
+        <div id="dashboardResult" class="results-grid">
+            <!-- Resultados do Dashboard serão inseridos aqui -->
+        </div>
+    </div>
+
+    <script src="static/js/dashboard.js"></script>
+</body>
+</html>

@@ -5,29 +5,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeloSelect = document.getElementById('modeloSelect');
     const compareButton = document.getElementById('compareButton');
     const resultadoComparacao = document.getElementById('resultadoComparacao');
+    let refPeriodo1 = '', refPeriodo2 = '';
+    let tabelasData = [];
 
     fetch('/api/tabelas')
         .then(response => response.json())
         .then(tabelas => {
+            tabelasData = tabelas; 
+
             tabelas.forEach(tabela => {
                 const option1 = document.createElement('option');
                 option1.value = tabela.codigo; // Campo "codigo" da TabelaReferencia
-                option1.textContent = `Tabela ${tabela.codigo} - ${tabela.mes}`;
+                option1.textContent = `Tabela ${formatarPeriodoParaExibicao(tabela.mes)}`
                 tabelaSelect1.appendChild(option1);
 
                 const option2 = document.createElement('option');
                 option2.value = tabela.codigo;
-                option2.textContent = `Tabela ${tabela.codigo} - ${tabela.mes}`;
+                option2.textContent = `Tabela ${formatarPeriodoParaExibicao(tabela.mes)}`
                 tabelaSelect2.appendChild(option2);
             });
         })
         .catch(err => console.error('Erro ao carregar tabelas:', err));
 
     tabelaSelect1.addEventListener('change', () => {
+        const selectedTabela = tabelasData.find(t => t.codigo == tabelaSelect1.value);
+        if (selectedTabela) refPeriodo1 = `${formatarPeriodoParaExibicao(selectedTabela.mes)}`;
         carregarMarcas();
     });
 
     tabelaSelect2.addEventListener('change', () => {
+        const selectedTabela = tabelasData.find(t => t.codigo == tabelaSelect2.value);
+        if (selectedTabela) refPeriodo2 = `${formatarPeriodoParaExibicao(selectedTabela.mes)}`;
         carregarMarcas();
     });
 
@@ -111,9 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (veiculo2024) {
                                 html += `
                                     <div class="vehicle-card">
-                                        <p><strong>Ano:</strong> ${veiculo2025.year}</p>
-                                        <p><strong>Período 1:</strong> ${veiculo2025.price.replace(/"/g, '')}</p>
-                                        <p><strong>Período 2:</strong> ${veiculo2024.price.replace(/"/g, '')}</p>
+                                        <p><strong>Ano do Carro:</strong> ${veiculo2025.year === 32000 ? '0km' : veiculo2025.year}</p>
+                                        <p><strong>${refPeriodo1}:</strong> ${veiculo2025.price.replace(/"/g, '')}</p>
+                                        <p><strong>${refPeriodo2}:</strong> ${veiculo2024.price.replace(/"/g, '')}</p>
                                     </div>`;
                             }
                         });
@@ -135,3 +143,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function formatarPeriodoParaExibicao(mesAnoString) {
+    if (!mesAnoString || typeof mesAnoString !== 'string') {
+        return 'Período inválido';
+    }
+    const parts = mesAnoString.split('/');
+    if (parts.length === 2) {
+        const mes = capitalizeFirstLetter(parts[0].trim()); // Garante capitalização
+        const ano = parts[1].trim();
+        // Verifica se o ano é numérico (básico)
+        if (mes && /^\d{4}$/.test(ano)) {
+             // Retorna o formato desejado: "Mês de Ano"
+            return `${mes} de ${ano}`;
+        }
+    }
+    // Retorna o original como fallback se o formato for inesperado
+    return `Tabela ${mesAnoString}`;
+}
+
+function capitalizeFirstLetter(string) {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}

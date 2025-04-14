@@ -8,18 +8,14 @@ fipe_project/
 │   │   └── fipe.go       # Handlers para endpoints FIPE
 │   └── services/         # Lógica de negócios
 │       └── fipe.go       # Serviços relacionados à FIPE
-├── pkg/                  # Código que pode ser reutilizado
-│   └── utils/            # Utilitários
-│       └── http.go       # Helpers HTTP
 ├── frontend/             # Interface do usuário
 │   ├── static/           # Arquivos estáticos
 │   │   ├── css/
 │   │   ├── js/
 │   │   └── images/
-│   └── templates/        # Templates HTML
+│   └──                   # Templates HTML
 ├── configs/              # Arquivos de configuração
 ├── docs/                 # Documentação
-├── scripts/              # Scripts de automação
 ├── go.mod                # Dependências Go
 └── go.sum
 └── main.go       # Arquivo principal

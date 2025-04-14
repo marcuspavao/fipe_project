@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tabelas.forEach(tabela => {
         const option = document.createElement('option');
         option.value = tabela.codigo; 
-        option.textContent = `Tabela ${tabela.codigo} - ${tabela.mes}`;
+        option.textContent = `Tabela ${formatarPeriodoParaExibicao(tabela.mes)}`
         tabelaSelect.appendChild(option);
       });
     })
@@ -74,8 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabelaVal = tabelaSelect.value;
     if (modeloVal && tabelaVal) {
       resultado.innerHTML = '<p>Carregando informações do veículo...</p>';
-      console.log(modeloVal)
-      console.log(tabelaVal)
       fetch(`/api/veiculos?modelo=${modeloVal}&tabela=${tabelaVal}`)
       .then(response => response.json())
       .then(veiculos => {
@@ -86,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
           veiculos.forEach(v => {
             html += `
               <div class="vehicle-card">
-                <span class="year">${v.year}</span>
+                <span class="year">${v.year === 32000 ? '0km' : v.year}</span>
                 <p class="price">${v.price.replace(/"/g, '')}</p>
                 <p>Referência: ${v.monthReference.replace(/"/g, '')}</p>
               </div>
@@ -108,3 +106,26 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
+function formatarPeriodoParaExibicao(mesAnoString) {
+  if (!mesAnoString || typeof mesAnoString !== 'string') {
+      return 'Período inválido';
+  }
+  const parts = mesAnoString.split('/');
+  if (parts.length === 2) {
+      const mes = capitalizeFirstLetter(parts[0].trim()); // Garante capitalização
+      const ano = parts[1].trim();
+      // Verifica se o ano é numérico (básico)
+      if (mes && /^\d{4}$/.test(ano)) {
+           // Retorna o formato desejado: "Mês de Ano"
+          return `${mes} de ${ano}`;
+      }
+  }
+  // Retorna o original como fallback se o formato for inesperado
+  return `Tabela ${mesAnoString}`;
+}
+
+function capitalizeFirstLetter(string) {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
