@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Marcas FIPE</title>
+    <link rel="shortcut icon" href="static/images/favicon.png" type="image/x-icon" />
     <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="container">
-        <h1>Dashboard Comparativo de Marcas (0km)</h1>
+        <header class="dashboard-header">
+            <a href="/index.html" class="btn-voltar">
+              <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <h1><i class="fas fa-car"></i> Dashboard Comparativo de Marcas </h1>
+            <span class="header-spacer"></span>
+        </header>
+
 
         <div class="controls">
-            <div class="control-group">
-                <label for="tabelaSelect1">Período 1:</label>
-                <select id="tabelaSelect1">
+            <div class="form-group">
+                <label for="tabelaSelect1"><i class="fas fa-calendar-alt"></i> Primeiro Período:</label>
+                <select id="tabelaSelect1" class="form-control">
+                    <option value=""><i class="fas fa-calendar-alt"></i>Carregando...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tabelaSelect2"><i class="fas fa-calendar-alt"></i> Segundo Período:</label>
+                <select id="tabelaSelect2" class="form-control">
                     <option value="">Carregando...</option>
                 </select>
             </div>
-            <div class="control-group">
-                <label for="tabelaSelect2">Período 2:</label>
-                <select id="tabelaSelect2">
-                    <option value="">Carregando...</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="marcaSelect">Marca:</label>
-                <select id="marcaSelect" disabled>
+            <div class="form-group">
+                <label for="marcaSelect"><i class="fas fa-trademark"></i> Marca:</label>
+                <select id="marcaSelect" class="form-control" disabled>
                     <option value="all">Todas as Marcas</option>
-                    <!-- Marcas serão carregadas via JS -->
                 </select>
             </div>
-            <button id="fetchDashboardButton" disabled>Comparar</button>
+            <button id="fetchDashboardButton" class="fetchDashboardButton" disabled>Comparar</button>
         </div>
+
 
         <div id="statusMessage" class="status"></div>
 
-        <div id="dashboardResult" class="results-grid">
-            <!-- Resultados do Dashboard serão inseridos aqui -->
-        </div>
+        <div id="dashboardResult" class="results-grid"></div>
     </div>
 
     <script src="static/js/dashboard.js"></script>
 </body>
+
 </html>

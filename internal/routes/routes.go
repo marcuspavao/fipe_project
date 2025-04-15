@@ -2,9 +2,7 @@ package routes
 
 import (
 	"net/http"
-
 	"fipe_project/internal/handlers"
-
 	"github.com/gorilla/mux"
 )
 

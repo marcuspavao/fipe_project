@@ -19,21 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
         statusMessageDiv.style.display = message ? 'block' : 'none';
     }
 
-    // Função para formatar período (ex: "Abril/2024" -> "Abril de 2024")
     function formatPeriodDisplay(mesAnoString) {
-        if (!mesAnoString || typeof mesAnoString !== 'string') return mesAnoString || 'N/A';
         const parts = mesAnoString.split('/');
         if (parts.length === 2) {
             const mes = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
             const ano = parts[1];
-            if (mes && /^\d{4}$/.test(ano)) {
-                return `${mes} de ${ano}`;
-            }
+            return `${mes} de ${ano}`;
         }
-        return mesAnoString; // Fallback
+        return mesAnoString; 
     }
 
-    // Função para carregar tabelas (períodos)
     async function loadTabelas() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/tabelas`);
@@ -48,13 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const displayMesAno = formatPeriodDisplay(tabela.mes);
                 const option1 = document.createElement('option');
                 option1.value = tabela.codigo;
-                option1.textContent = `Ref: ${displayMesAno}`;
+                option1.textContent = `Tabela ${formatarPeriodoParaExibicao(displayMesAno)}`;
                 option1.dataset.ref = tabela.mes; // Guarda a ref original
                 tabelaSelect1.appendChild(option1);
 
                 const option2 = document.createElement('option');
                 option2.value = tabela.codigo;
-                option2.textContent = `Ref: ${displayMesAno}`;
+                option2.textContent = `Tabela ${formatarPeriodoParaExibicao(displayMesAno)}`;
                  option2.dataset.ref = tabela.mes; // Guarda a ref original
                 tabelaSelect2.appendChild(option2);
             });
@@ -106,13 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
      // Habilita o botão de comparar se ambos os períodos são selecionados e diferentes
      function enableControls() {
-        const tabela1Valido = tabelaSelect1.value !== "";
-        const tabela2Valido = tabelaSelect2.value !== "";
-        const periodosDiferentes = tabelaSelect1.value !== tabelaSelect2.value;
-        const marcasCarregadas = !marcaSelect.disabled || marcaSelect.value !== ""; // Considera carregado se não estiver desabilitado
+        const tabela1Valido = tabelaSelect1.value !== ""; false
+        const tabela2Valido = tabelaSelect2.value !== ""; false
+        const periodosDiferentes = tabelaSelect1.value !== tabelaSelect2.value; false
+        const marcaSelectValido =  marcaSelect.value !== "all"; // Considera carregado se não estiver desabilitado 
 
-        fetchButton.disabled = !(tabela1Valido && tabela2Valido && periodosDiferentes && marcasCarregadas);
-
+        fetchButton.disabled = !(tabela1Valido && tabela2Valido && periodosDiferentes && marcaSelectValido);
         // Habilita select de marca apenas se o período 1 estiver selecionado
         if (tabela1Valido && marcaSelect.innerHTML.includes('Erro') || marcaSelect.innerHTML.includes('Carregando')) {
              // Não desabilita se já estiver carregando ou com erro,
@@ -239,3 +233,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carregamento Inicial
     loadTabelas();
 });
+
+function formatarPeriodoParaExibicao(mesAnoString) {
+    if (!mesAnoString || typeof mesAnoString !== 'string') {
+        return 'Período inválido';
+    }
+    const parts = mesAnoString.split('/');
+    if (parts.length === 2) {
+        const mes = capitalizeFirstLetter(parts[0].trim()); // Garante capitalização
+        const ano = parts[1].trim();
+        // Verifica se o ano é numérico (básico)
+        if (mes && /^\d{4}$/.test(ano)) {
+             // Retorna o formato desejado: "Mês de Ano"
+            return `${mes} de ${ano}`;
+        }
+    }
+    // Retorna o original como fallback se o formato for inesperado
+    return `Tabela ${mesAnoString}`;
+  }
+  
+  function capitalizeFirstLetter(string) {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }
