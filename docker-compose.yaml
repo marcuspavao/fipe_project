@@ -21,8 +21,8 @@ services:
   app:
     build: .
     container_name: go_app
-    volumes:
-      - .:/app
+    # volumes: # Volume mount removed to use the content built into the Docker image
+      # - .:/app 
     ports:
       - "8080:8080"
     environment:

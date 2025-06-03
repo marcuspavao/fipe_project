@@ -1,0 +1,171 @@
+/* Import base styles (like normalize.css or Vite's base) */
+@import './base.css'; /* This likely includes a reset/normalize */
+
+/* Global CSS Variables from original styles.css */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2980b9;
+  --accent-color: #e74c3c;
+  --text-color: #333;
+  --light-gray: #f5f5f5;
+  --medium-gray: #e0e0e0;
+  --dark-gray: #777;
+  --white: #fff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+  
+  /* Variables for nav links from previous step, ensure they are consistent */
+  --text-color-nav-link: #ecf0f1; 
+  --text-color-nav-link-hover: #1abc9c;
+}
+
+/* Universal box-sizing reset (if not covered by base.css) */
+/* base.css likely has this, but explicit declaration doesn't hurt */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0; /* Basic reset for margin */
+  padding: 0; /* Basic reset for padding */
+}
+
+/* Body styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* App container - default Vite styling, can be adjusted */
+#app {
+  max-width: 1280px; /* Or remove for full-width controlled by .container */
+  margin: 0 auto;
+  padding: 0; /* Changed from 2rem to 0, MainLayout's .container will handle padding */
+  font-weight: normal;
+}
+
+/* Global container for page content (used in MainLayout.vue) */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header styles (used in MainLayout.vue) */
+header { /* This is the <header> tag inside MainLayout's .container */
+  background-color: #2c3e50;
+  padding: 20px; /* Increased padding a bit for a slightly taller header */
+  text-align: center;  
+  border-radius: 8px; 
+  box-shadow: var(--shadow); 
+  margin-bottom: 30px;  
+}
+
+header h1 { /* Styles for H1 specifically within the <header> element */
+  color: var(--text-color-nav-link); /* Using nav link color for consistency in this header */
+  font-size: 28px; /* Slightly larger */
+  font-weight: bold;  
+  margin-bottom: 10px;  
+}
+header h1 i { /* Ensure icon color matches header text */
+    margin-right: 10px;
+}
+
+header .subtitle { /* Styles for .subtitle class specifically within the <header> element */
+  color: #bdc3c7;  
+  font-size: 16px; 
+}
+
+/* Navigation styles (used in MainLayout.vue) */
+/* nav tag itself */
+nav {
+  /* background-color: #2c3e50; (Covered by header if nav is inside header) */
+  /* padding: 15px 20px; (Padding on header is enough) */
+  text-align: center; 
+  /* border-radius: 8px; (Covered by header) */
+  /* box-shadow: var(--shadow); (Covered by header) */
+  margin-top: 15px; /* Space between subtitle and nav links */
+}
+
+/* nav a links (already styled in previous step, ensure consistency) */
+nav a {
+  color: var(--text-color-nav-link);
+  text-decoration: none;
+  font-size: 18px; 
+  font-weight: bold; 
+  margin: 0 10px; 
+  transition: color 0.3s ease, transform 0.3s ease; 
+  padding: 5px 0;
+}
+
+nav a:hover {
+  color: var(--text-color-nav-link-hover);
+  transform: scale(1.05); /* Slightly reduced hover scale for nav */
+}
+
+nav a.router-link-exact-active {
+  color: var(--primary-color); 
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px; 
+}
+
+/* Footer styles (used in MainLayout.vue) */
+footer { /* This is the <footer> tag inside MainLayout's .container */
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px 0;
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--medium-gray);
+}
+
+/* Global Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Components like ResultsDisplay can use this by name if needed, 
+   or define it locally if it's not truly global. 
+   Keeping it here for now as it was in the original global styles.css */
+.fade-in-result { /* Example class that components could use */
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  header {
+    padding: 15px;
+  }
+  header h1 {
+    font-size: 22px;
+  }
+  header .subtitle {
+    font-size: 14px;
+  }
+  nav a {
+    font-size: 16px;
+    margin: 0 5px;
+  }
+
+  /* Default Vite responsive styles - commented out in previous step, ensure they are not needed */
+  /* #app { padding: 0 1rem; }  */
+}
+
+/* Styles for form elements - these are more like base styles for form elements used in components */
+/* It's often better to scope these to components or a dedicated form CSS module */
+/* For now, adding some generic .form-group and .form-control styles if they are truly global defaults */
+/* However, these were mostly copied into components' scoped styles, which is preferred. */
+/* Avoid adding them here unless a very generic global style is desired. */
+
+/* .form-group label { ... } */
+/* .form-control { ... } */
+
+/* The scoped component styles should handle specific appearances of form elements. */
+/* What was in styles.css for .form-control (width: 50%) was overridden in components to 100% anyway. */
