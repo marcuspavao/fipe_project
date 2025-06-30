@@ -4,9 +4,12 @@ go 1.23
 
 require go.mongodb.org/mongo-driver v1.9.1
 
+require github.com/felixge/httpsnoop v1.0.3 // indirect
+
 require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

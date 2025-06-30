@@ -8,21 +8,18 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	
 	"sync"
 	"time"
-
-	"fipe_project/internal/database"
-	"fipe_project/internal/utils"
-	"fipe_project/internal/models"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	
-	
+
+	"fipe_project/internal/database"
+	"fipe_project/internal/models"
+	"fipe_project/internal/utils"
 )
 
 func GetTabelasReferencia(w http.ResponseWriter, r *http.Request) {
@@ -144,8 +141,6 @@ func GetVeiculos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -155,8 +150,6 @@ func GetVeiculos(w http.ResponseWriter, r *http.Request) {
 		"monthYearId":      tabelaId,
 		"models.modelCode": modeloId,
 	}
-
-	
 
 	var result bson.M
 	err = collection.FindOne(ctx, filter).Decode(&result)
@@ -198,15 +191,11 @@ func GetVeiculos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	
-
 	if len(selectedYears) == 0 {
 		log.Printf("Nenhum ano encontrado para o modelo especificado.")
 		http.Error(w, "Anos não encontrados para o modelo especificado", http.StatusNotFound)
 		return
 	}
-
-	
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(selectedYears)
@@ -221,14 +210,14 @@ func getTabelaRef(ctx context.Context, tabelaId int) (string, error) {
 	var result struct {
 		Mes string `bson:"mes"`
 	}
-	
+
 	log.Printf("Log tabela: %d", tabelaId)
 
-	filter := bson.A{"codigo": tabelaId}
+	filter := bson.M{"codigo": tabelaId}
 	err := coll.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return fmt.Sprintf("Tabela %d", tabelaId), nil 
+			return fmt.Sprintf("Tabela %d", tabelaId), nil
 		}
 		return "", fmt.Errorf("erro ao buscar ref da tabela %d: %v", tabelaId, err)
 	}
@@ -236,7 +225,7 @@ func getTabelaRef(ctx context.Context, tabelaId int) (string, error) {
 }
 
 func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
-	
+
 	tabela1Param := r.URL.Query().Get("tabela1")
 	tabela2Param := r.URL.Query().Get("tabela2")
 	marcaParam := r.URL.Query().Get("marca")
@@ -258,7 +247,7 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var marcaIdFiltro *int32 
+	var marcaIdFiltro *int32
 	if marcaParam != "" {
 		marcaIdTemp, errM := strconv.Atoi(marcaParam)
 		if errM != nil {
@@ -266,7 +255,7 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		temp := int32(marcaIdTemp)
-		marcaIdFiltro = &temp 
+		marcaIdFiltro = &temp
 		log.Printf("Iniciando GetDashboardMarcas para tabelas: %d, %d e FILTRANDO pela marca ID: %d", tabela1Id, tabela2Id, *marcaIdFiltro)
 	} else {
 		log.Printf("Iniciando GetDashboardMarcas para tabelas: %d e %d (todas as marcas)", tabela1Id, tabela2Id)
@@ -275,7 +264,6 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	
 	var tabela1Ref, tabela2Ref string
 	var refErr1, refErr2 error
 	var wgRefs sync.WaitGroup
@@ -290,7 +278,6 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Erro ao buscar referência da tabela %d: %v", tabela2Id, refErr2)
 	}
 
-	
 	statsTabela1 := make(map[int32]*models.BrandPeriodStats)
 	statsTabela2 := make(map[int32]*models.BrandPeriodStats)
 	BrandInfo := make(map[int32]struct {
@@ -298,16 +285,14 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		Code int32
 	})
 
-	var processErr1, processErr2 error 
+	var processErr1, processErr2 error
 	var wgProcess sync.WaitGroup
 	wgProcess.Add(2)
 
-	
-	processTable := func(tabelaId int, tabelaRef string, targetStats map[int32]*models.BrandPeriodStats, filterBrand *int32) error { 
+	processTable := func(tabelaId int, tabelaRef string, targetStats map[int32]*models.BrandPeriodStats, filterBrand *int32) error {
 		defer wgProcess.Done()
 		collection := database.DB.Collection("Veiculos")
 
-		
 		filter := bson.M{"monthYearId": tabelaId}
 		if filterBrand != nil {
 			filter["brandCode"] = *filterBrand
@@ -315,7 +300,6 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		} else {
 			log.Printf("Tabela %d: Buscando todas as marcas.", tabelaId)
 		}
-		
 
 		cursor, err := collection.Find(ctx, filter)
 		if err != nil {
@@ -323,7 +307,7 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		}
 		defer cursor.Close(ctx)
 
-		processedBrands := 0 
+		processedBrands := 0
 		for cursor.Next(ctx) {
 			var doc bson.M
 			if err := cursor.Decode(&doc); err != nil {
@@ -341,14 +325,14 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 			modelosDisponiveis := 0
 
 			log.Printf("Verificando se existe a marca %d", brandCode)
-			
+
 			if _, exists := BrandInfo[brandCode]; !exists {
 				BrandInfo[brandCode] = struct {
 					Name string
 					Code int32
 				}{Name: brandName, Code: brandCode}
 			}
-			
+
 			log.Printf("Tabela %s", tabelaRef)
 
 			if _, exists := targetStats[brandCode]; !exists {
@@ -426,7 +410,6 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			
 			stats.TotalModelos = modelosDisponiveis
 			if stats.TotalVeiculos0km > 0 {
 				stats.ValorMedio0km = stats.SomaValores0km / float64(stats.TotalVeiculos0km)
@@ -439,7 +422,7 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 				stats.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
 				stats.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
 			}
-		} 
+		}
 
 		log.Printf("Tabela %d: Processou %d marcas (documentos).", tabelaId, processedBrands)
 
@@ -449,28 +432,25 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		return nil
 	}
 
-	
 	go func() { processErr1 = processTable(tabela1Id, tabela1Ref, statsTabela1, marcaIdFiltro) }()
 	go func() { processErr2 = processTable(tabela2Id, tabela2Ref, statsTabela2, marcaIdFiltro) }()
-	wgProcess.Wait() 
+	wgProcess.Wait()
 
-	
 	if processErr1 != nil {
-		log.Printf("Erro ao processar tabela 1 (%d): %v", tabela1Id, processErr1)  
+		log.Printf("Erro ao processar tabela 1 (%d): %v", tabela1Id, processErr1)
 	}
 	if processErr2 != nil {
-		log.Printf("Erro ao processar tabela 2 (%d): %v", tabela2Id, processErr2) 
+		log.Printf("Erro ao processar tabela 2 (%d): %v", tabela2Id, processErr2)
 	}
 
-	
 	var dashboardResult []models.DashboardBrandEntry
 
 	brandCode := *marcaIdFiltro
-	info, _ := BrandInfo[brandCode] 
-	
+	info := BrandInfo[brandCode]
+
 	stats1, ok1 := statsTabela1[brandCode]
 	stats2, ok2 := statsTabela2[brandCode]
-	
+
 	if !ok1 {
 		stats1 = &models.BrandPeriodStats{Ref: tabela1Ref, TabelaId: tabela1Id, ValorMedio0km: math.NaN()}
 		stats1.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
@@ -497,8 +477,7 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		Periodo2:              *stats2,
 		DiferencasPercentuais: diffs,
 	}
-	dashboardResult = append(dashboardResult, entry) 
-
+	dashboardResult = append(dashboardResult, entry)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(dashboardResult); err != nil {
@@ -506,4 +485,79 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro interno ao gerar resposta", http.StatusInternalServerError)
 	}
 	log.Printf("GetDashboardMarcas concluído com sucesso para tabelas: %d, %d e marca %d/n", tabela1Id, tabela2Id, *marcaIdFiltro)
+}
+
+func GetVeiculosNovos(w http.ResponseWriter, r *http.Request) {
+
+	tabelaParam := r.URL.Query().Get("tabela")
+	if tabelaParam == "" {
+		http.Error(w, "Parâmetro 'tabela' é obrigatório", http.StatusBadRequest)
+		return
+	}
+
+	tabelaId, err := strconv.Atoi(tabelaParam)
+	if err != nil {
+		http.Error(w, "Parâmetro 'tabela' inválido", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.DB.Collection("Veiculos")
+
+	filter := bson.M{
+		"monthYearId": tabelaId,
+	}
+
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		log.Printf("Erro ao decodificar documento da tabela %d: %v", tabelaId, err)
+	}
+
+	var selectedYears []bson.M
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			log.Printf("Erro ao decodificar documento da tabela %d: %v", tabelaId, err)
+			continue
+		}
+
+		modelsRaw, exists := doc["models"]
+		if !exists {
+			continue
+		}
+
+		modelsList, ok := modelsRaw.(primitive.A)
+		if !ok {
+			continue
+		}
+
+		for _, model := range modelsList {
+			m, ok := model.(bson.M)
+			if ok {
+				if years, exists := m["years"].(primitive.A); exists {
+					for _, year := range years {
+						if yearMap, isMap := year.(bson.M); isMap {
+							if yearMap["year"] == int32(32000) {
+								yearMap["model"] = m["modelName"]
+								selectedYears = append(selectedYears, yearMap)
+							}
+						}
+					}
+				} else {
+					log.Printf("Campo 'years' não encontrado ou não é um array no modelo selecionado.")
+				}
+			}
+		}
+	}
+
+	if len(selectedYears) == 0 {
+		log.Printf("Nenhum modelo encontrado com o ano especificado.")
+		http.Error(w, "Modelos não encontrados com o ano especificado", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(selectedYears)
 }
