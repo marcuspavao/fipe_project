@@ -1,0 +1,37 @@
+name: Deploy to Server via Git Pull
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.0 
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "--- ✅ Conectado ao servidor. Iniciando deploy... ---"
+            
+            # 1. Navega para a pasta do projeto no servidor.
+            # Garanta que esta pasta já exista e seja um repositório git.
+            cd ~/fipe_project
+            
+            echo "--- 🔄 Atualizando código com git pull... ---"
+            # 2. Puxa as últimas alterações da branch principal.
+            git pull origin main
+            
+            echo "--- 🐳 Reconstruindo e reiniciando os containers Docker... ---"
+            # 3. O comando correto: reconstrói a imagem (se necessário) e sobe os serviços em background.
+            docker compose up --build -d
+            
+            echo "--- 🧹 Limpando imagens Docker antigas (opcional, mas recomendado)... ---"
+            # 4. Remove imagens "dangling" (sem tag) para economizar espaço em disco.
+            docker image prune -f
+            
+            echo "--- 🎉 Deploy finalizado com sucesso! ---"
