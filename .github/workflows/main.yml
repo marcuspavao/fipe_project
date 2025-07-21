@@ -20,7 +20,7 @@ jobs:
             
             # 1. Navega para a pasta do projeto no servidor.
             # Garanta que esta pasta já exista e seja um repositório git.
-            cd ~/fipe_project
+            cd fipe_project
             
             echo "--- 🔄 Atualizando código com git pull... ---"
             # 2. Puxa as últimas alterações da branch principal.
