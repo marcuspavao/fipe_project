@@ -8,7 +8,7 @@ RUN go mod tidy
 
 RUN go mod download
 
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/air-verse/air@v1.60.0
 
 COPY . .
 
