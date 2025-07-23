@@ -33,14 +33,79 @@ func GetTabelasReferencia(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro interno", http.StatusInternalServerError)
 		return
 	}
-	var tabelas []bson.M
-	if err := cursor.All(ctx, &tabelas); err != nil {
-		log.Printf("Erro ao decodificar tabelas de referência: %v", err)
+	defer cursor.Close(ctx)
+
+	var wg sync.WaitGroup
+	tabelasChan := make(chan bson.M)
+	errChan := make(chan error, 1)
+
+	go func() {
+		defer close(tabelasChan)
+		for cursor.Next(ctx) {
+			var tabela bson.M
+			if err := cursor.Decode(&tabela); err != nil {
+				errChan <- fmt.Errorf("erro ao decodificar tabela de referência: %v", err)
+				return
+			}
+			wg.Add(1)
+			go func(tabela bson.M) {
+				defer wg.Done()
+				codigo, ok := tabela["codigo"].(int32)
+				if !ok {
+					log.Printf("Código da tabela não encontrado ou não é int32: %v", tabela)
+					return
+				}
+				temVeiculos, err := TabelaTemVeiculos(ctx, int(codigo))
+				if err != nil {
+					log.Printf("Erro ao verificar veículos para a tabela %d: %v", codigo, err)
+					return
+				}
+				if temVeiculos {
+					tabelasChan <- tabela
+				}
+			}(tabela)
+		}
+	}()
+
+	var tabelasFiltradas []bson.M
+	done := make(chan struct{})
+
+	go func() {
+		for tabela := range tabelasChan {
+			tabelasFiltradas = append(tabelasFiltradas, tabela)
+		}
+		close(done)
+	}()
+
+	wg.Wait()
+	select {
+	case err := <-errChan:
+		log.Printf("Erro no processamento das tabelas: %v", err)
+		http.Error(w, "Erro interno", http.StatusInternalServerError)
+		return
+	default:
+	}
+
+	<-done
+
+	if err := cursor.Err(); err != nil {
+		log.Printf("Erro no cursor ao final: %v", err)
 		http.Error(w, "Erro interno", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tabelas)
+	json.NewEncoder(w).Encode(tabelasFiltradas)
+}
+
+func TabelaTemVeiculos(ctx context.Context, tabelaId int) (bool, error) {
+	collection := database.DB.Collection("Veiculos")
+	filter := bson.M{"monthYearId": tabelaId}
+	count, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func GetMarcas(w http.ResponseWriter, r *http.Request) {
