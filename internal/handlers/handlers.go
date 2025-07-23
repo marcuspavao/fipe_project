@@ -445,39 +445,80 @@ func GetDashboardMarcas(w http.ResponseWriter, r *http.Request) {
 
 	var dashboardResult []models.DashboardBrandEntry
 
-	brandCode := *marcaIdFiltro
-	info := BrandInfo[brandCode]
+	if marcaIdFiltro != nil {
+		brandCode := *marcaIdFiltro
+		info, ok := BrandInfo[brandCode]
+		if !ok {
+			http.Error(w, "Marca não encontrada nos períodos especificados", http.StatusNotFound)
+			return
+		}
 
-	stats1, ok1 := statsTabela1[brandCode]
-	stats2, ok2 := statsTabela2[brandCode]
+		stats1, ok1 := statsTabela1[brandCode]
+		stats2, ok2 := statsTabela2[brandCode]
 
-	if !ok1 {
-		stats1 = &models.BrandPeriodStats{Ref: tabela1Ref, TabelaId: tabela1Id, ValorMedio0km: math.NaN()}
-		stats1.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
-		stats1.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
-		stats1.ValorMedio0kmFmt = "N/A"
+		if !ok1 {
+			stats1 = &models.BrandPeriodStats{Ref: tabela1Ref, TabelaId: tabela1Id, ValorMedio0km: math.NaN()}
+			stats1.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+			stats1.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+			stats1.ValorMedio0kmFmt = "N/A"
+		}
+		if !ok2 {
+			stats2 = &models.BrandPeriodStats{Ref: tabela2Ref, TabelaId: tabela2Id, ValorMedio0km: math.NaN()}
+			stats2.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+			stats2.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+			stats2.ValorMedio0kmFmt = "N/A"
+		}
+		diffs := models.PercentageDiffs{}
+		if diffAvg, ok := utils.CalculatePercentageDiff(stats1.ValorMedio0km, stats2.ValorMedio0km); ok {
+			diffs.ValorMedio0km = diffAvg
+		}
+		if diffModels, ok := utils.CalculatePercentageDiff(float64(stats1.TotalModelos), float64(stats2.TotalModelos)); ok {
+			diffs.TotalModelos = diffModels
+		}
+		entry := models.DashboardBrandEntry{
+			BrandName:             info.Name,
+			BrandCode:             info.Code,
+			Periodo1:              *stats1,
+			Periodo2:              *stats2,
+			DiferencasPercentuais: diffs,
+		}
+		dashboardResult = append(dashboardResult, entry)
+	} else {
+		for brandCode, info := range BrandInfo {
+			stats1, ok1 := statsTabela1[brandCode]
+			stats2, ok2 := statsTabela2[brandCode]
+
+			if !ok1 {
+				stats1 = &models.BrandPeriodStats{Ref: tabela1Ref, TabelaId: tabela1Id, ValorMedio0km: math.NaN()}
+				stats1.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+				stats1.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+				stats1.ValorMedio0kmFmt = "N/A"
+			}
+			if !ok2 {
+				stats2 = &models.BrandPeriodStats{Ref: tabela2Ref, TabelaId: tabela2Id, ValorMedio0km: math.NaN()}
+				stats2.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+				stats2.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
+				stats2.ValorMedio0kmFmt = "N/A"
+			}
+
+			diffs := models.PercentageDiffs{}
+			if diffAvg, ok := utils.CalculatePercentageDiff(stats1.ValorMedio0km, stats2.ValorMedio0km); ok {
+				diffs.ValorMedio0km = diffAvg
+			}
+			if diffModels, ok := utils.CalculatePercentageDiff(float64(stats1.TotalModelos), float64(stats2.TotalModelos)); ok {
+				diffs.TotalModelos = diffModels
+			}
+
+			entry := models.DashboardBrandEntry{
+				BrandName:             info.Name,
+				BrandCode:             info.Code,
+				Periodo1:              *stats1,
+				Periodo2:              *stats2,
+				DiferencasPercentuais: diffs,
+			}
+			dashboardResult = append(dashboardResult, entry)
+		}
 	}
-	if !ok2 {
-		stats2 = &models.BrandPeriodStats{Ref: tabela2Ref, TabelaId: tabela2Id, ValorMedio0km: math.NaN()}
-		stats2.MenorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
-		stats2.MaiorPreco0km = models.PriceInfo{Modelo: "N/A", ValorFmt: "N/A", Valor: math.NaN()}
-		stats2.ValorMedio0kmFmt = "N/A"
-	}
-	diffs := models.PercentageDiffs{}
-	if diffAvg, ok := utils.CalculatePercentageDiff(stats1.ValorMedio0km, stats2.ValorMedio0km); ok {
-		diffs.ValorMedio0km = diffAvg
-	}
-	if diffModels, ok := utils.CalculatePercentageDiff(float64(stats1.TotalModelos), float64(stats2.TotalModelos)); ok {
-		diffs.TotalModelos = diffModels
-	}
-	entry := models.DashboardBrandEntry{
-		BrandName:             info.Name,
-		BrandCode:             info.Code,
-		Periodo1:              *stats1,
-		Periodo2:              *stats2,
-		DiferencasPercentuais: diffs,
-	}
-	dashboardResult = append(dashboardResult, entry)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(dashboardResult); err != nil {
