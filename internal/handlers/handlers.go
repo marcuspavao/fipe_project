@@ -22,88 +22,89 @@ import (
 	"fipe_project/internal/utils"
 )
 
+// GetTabelasReferencia busca todas as tabelas de referência e retorna apenas
+// aquelas que possuem veículos associados, fazendo a verificação de forma concorrente.
 func GetTabelasReferencia(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second) // Aumentei o timeout para dar conta de mais requisições
 	defer cancel()
 
 	collection := database.DB.Collection("TabelaReferencia")
+
+	// 1. Carregamos todas as tabelas em memória primeiro.
+	// Isso simplifica a lógica de concorrência, pois não precisamos nos preocupar
+	// com o cursor do banco de dados sendo acessado por múltiplas goroutines.
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Printf("Erro ao buscar tabelas de referência: %v", err)
-		http.Error(w, "Erro interno", http.StatusInternalServerError)
+		http.Error(w, "Erro interno ao buscar dados", http.StatusInternalServerError)
 		return
 	}
 	defer cursor.Close(ctx)
 
-	var wg sync.WaitGroup
-	tabelasChan := make(chan bson.M)
-	errChan := make(chan error, 1)
+	var todasTabelas []bson.M
+	if err = cursor.All(ctx, &todasTabelas); err != nil {
+		log.Printf("Erro ao decodificar todas as tabelas: %v", err)
+		http.Error(w, "Erro interno ao processar dados", http.StatusInternalServerError)
+		return
+	}
 
-	go func() {
-		defer close(tabelasChan)
-		for cursor.Next(ctx) {
-			var tabela bson.M
-			if err := cursor.Decode(&tabela); err != nil {
-				errChan <- fmt.Errorf("erro ao decodificar tabela de referência: %v", err)
+	// 2. Preparamos a estrutura para processamento concorrente.
+	var wg sync.WaitGroup
+	var mutex sync.Mutex // Usamos um Mutex para proteger o acesso ao slice de resultados.
+	var tabelasFiltradas []bson.M
+
+	// 3. Iteramos sobre as tabelas e disparamos uma goroutine para cada uma.
+	for _, tabela := range todasTabelas {
+		wg.Add(1) // Adiciona ao WaitGroup antes de iniciar a goroutine.
+
+		go func(tabela bson.M) {
+			defer wg.Done() // Garante que o Done() seja chamado ao final da goroutine.
+
+			codigo, ok := tabela["codigo"].(int32)
+			if !ok {
+				log.Printf("Código da tabela não encontrado ou não é int32: %v", tabela)
+				return // Apenas pula esta tabela se o código estiver malformado.
+			}
+
+			temVeiculos, err := TabelaTemVeiculos(ctx, int(codigo))
+			if err != nil {
+				// Logamos o erro, mas não paramos todo o processo.
+				// Um erro em uma tabela não deve impedir as outras de serem processadas.
+				log.Printf("Erro ao verificar veículos para a tabela %d: %v", codigo, err)
 				return
 			}
-			wg.Add(1)
-			go func(tabela bson.M) {
-				defer wg.Done()
-				codigo, ok := tabela["codigo"].(int32)
-				if !ok {
-					log.Printf("Código da tabela não encontrado ou não é int32: %v", tabela)
-					return
-				}
-				temVeiculos, err := TabelaTemVeiculos(ctx, int(codigo))
-				if err != nil {
-					log.Printf("Erro ao verificar veículos para a tabela %d: %v", codigo, err)
-					return
-				}
-				if temVeiculos {
-					tabelasChan <- tabela
-				}
-			}(tabela)
-		}
-	}()
 
-	var tabelasFiltradas []bson.M
-	done := make(chan struct{})
+			if temVeiculos {
+				// 4. Se a condição for atendida, adicionamos ao slice de resultados de forma segura.
+				mutex.Lock()
+				tabelasFiltradas = append(tabelasFiltradas, tabela)
+				mutex.Unlock()
+			}
+		}(tabela)
+	}
 
-	go func() {
-		for tabela := range tabelasChan {
-			tabelasFiltradas = append(tabelasFiltradas, tabela)
-		}
-		close(done)
-	}()
-
+	// 5. Esperamos todas as goroutines terminarem.
 	wg.Wait()
-	select {
-	case err := <-errChan:
-		log.Printf("Erro no processamento das tabelas: %v", err)
-		http.Error(w, "Erro interno", http.StatusInternalServerError)
-		return
-	default:
-	}
 
-	<-done
-
-	if err := cursor.Err(); err != nil {
-		log.Printf("Erro no cursor ao final: %v", err)
-		http.Error(w, "Erro interno", http.StatusInternalServerError)
-		return
-	}
-
+	// 6. Enviamos a resposta.
+	// Neste ponto, `tabelasFiltradas` contém todos os resultados válidos.
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tabelasFiltradas)
+	if err := json.NewEncoder(w).Encode(tabelasFiltradas); err != nil {
+		log.Printf("Erro ao encodar a resposta JSON: %v", err)
+		// A resposta pode já ter sido parcialmente enviada, então não podemos setar um novo http.Error.
+	}
 }
 
+// TabelaTemVeiculos verifica se existem documentos na coleção "Veiculos"
+// que correspondem a um determinado ID de tabela.
 func TabelaTemVeiculos(ctx context.Context, tabelaId int) (bool, error) {
 	collection := database.DB.Collection("Veiculos")
 	filter := bson.M{"monthYearId": tabelaId}
+
+	// Usar CountDocuments é eficiente para esta verificação.
 	count, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("falha ao contar documentos: %w", err)
 	}
 	return count > 0, nil
 }
