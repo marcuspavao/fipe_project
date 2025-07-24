@@ -24,11 +24,6 @@ func SetupRoutes() http.Handler {
 	staticFileServer := http.FileServer(http.Dir("./frontend/"))
 	router.PathPrefix("/").Handler(staticFileServer)
 
-	allowedOriginsVal := []string{
-		"http://localhost:5173",
-		"http://192.168.3.31:5173",
-	}
-
 	corsHandler := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
